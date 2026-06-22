@@ -9,6 +9,8 @@ import com.billsplitter.model.User;
 import com.billsplitter.model.enums.OrderRole;
 import com.billsplitter.model.enums.OrderStatus;
 import com.billsplitter.repository.*;
+import exception.InvalidOrderStatusException;
+import exception.ParticipantAlreadyExistsException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,8 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -115,5 +116,80 @@ public class OrderServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(savedParticipant.getId(), result.getParticipantId());
+    }
+
+    @Test
+    void shouldFailWhenAddingParticipantToClosedOrder() {
+        User creator = new User();
+        creator.setId(1L);
+
+        Long orderId = 1L;
+        String userEmail = "kevin@gmail.com";
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setCreatedBy(creator);
+        order.setStatus(OrderStatus.CLOSED);
+
+        User newParticipant = new User();
+        newParticipant.setId(2L);
+        newParticipant.setName("Kevin");
+        newParticipant.setEmail(userEmail);
+
+        when(accessService.getOrderByIdIfCreator(orderId, creator))
+                .thenReturn(order);
+        when(userRepository.findByEmail(userEmail))
+                .thenReturn(Optional.of(newParticipant));
+
+        // Act & Assert
+        assertThrows(InvalidOrderStatusException.class, () -> {
+            orderService.addParticipant(orderId, userEmail, creator);
+        });
+    }
+
+    @Test
+    void shouldFailWhenParticipantAlreadyExists() {
+        User creator = new User();
+        creator.setId(1L);
+
+        Long orderId = 1L;
+        String userEmail = "kevin@gmail.com";
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setCreatedBy(creator);
+        order.setStatus(OrderStatus.OPEN);
+
+        User newParticipant = new User();
+        newParticipant.setId(2L);
+        newParticipant.setName("Kevin");
+        newParticipant.setEmail(userEmail);
+
+        when(accessService.getOrderByIdIfCreator(orderId, creator))
+                .thenReturn(order);
+        when(userRepository.findByEmail(userEmail))
+                .thenReturn(Optional.of(newParticipant));
+        when(participantRepository.existsByOrderAndUser(order, newParticipant))
+                .thenReturn(true);
+
+        // Act & Assert
+        assertThrows(ParticipantAlreadyExistsException.class, () -> {
+            orderService.addParticipant(orderId, userEmail, creator);
+        });
+    }
+
+    @Test
+    void shouldFailToCloseOrderWhenNotOpen() {
+
+    }
+
+    @Test
+    void shouldDeleteOrderSuccessfully() {
+
+    }
+
+    @Test
+    void shouldAssignItemSuccessfully() {
+        
     }
 }
