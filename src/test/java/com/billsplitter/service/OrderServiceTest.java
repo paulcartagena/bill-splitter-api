@@ -11,7 +11,6 @@ import com.billsplitter.model.enums.OrderStatus;
 import com.billsplitter.repository.*;
 import exception.InvalidOrderStatusException;
 import exception.ParticipantAlreadyExistsException;
-import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
