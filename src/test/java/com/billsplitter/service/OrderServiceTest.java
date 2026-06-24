@@ -1,16 +1,17 @@
 package com.billsplitter.service;
 
+import com.billsplitter.dto.item.AssignRequestDTO;
+import com.billsplitter.dto.item.AssignResponseDTO;
 import com.billsplitter.dto.order.OrderRequestDTO;
 import com.billsplitter.dto.order.OrderResponseDTO;
 import com.billsplitter.dto.participant.ParticipantSummaryDTO;
-import com.billsplitter.model.Order;
-import com.billsplitter.model.Participant;
-import com.billsplitter.model.User;
+import com.billsplitter.model.*;
 import com.billsplitter.model.enums.OrderRole;
 import com.billsplitter.model.enums.OrderStatus;
 import com.billsplitter.repository.*;
 import exception.InvalidOrderStatusException;
 import exception.ParticipantAlreadyExistsException;
+import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,11 +19,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class OrderServiceTest {
@@ -180,16 +183,123 @@ public class OrderServiceTest {
 
     @Test
     void shouldFailToCloseOrderWhenNotOpen() {
+        User creator = new User();
+        creator.setId(1L);
 
+        Long orderId = 1L;
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setCreatedBy(creator);
+        order.setStatus(OrderStatus.CLOSED);
+
+        when(accessService.getOrderByIdIfCreator(orderId, creator))
+                .thenReturn(order);
+
+        assertThrows(InvalidOrderStatusException.class, () -> {
+            orderService.closeOrder(orderId, creator);
+        });
     }
 
     @Test
     void shouldDeleteOrderSuccessfully() {
+        User creator = new User();
+        creator.setId(1L);
 
+        Long orderId = 1L;
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setCreatedBy(creator);
+        order.setStatus(OrderStatus.OPEN);
+
+        when(accessService.getOrderByIdIfCreator(orderId, creator))
+                .thenReturn(order);
+
+        // Act
+        orderService.deleteOrder(orderId, creator);
+
+        // Assert
+        verify(orderRepository).delete(order);
     }
 
     @Test
     void shouldAssignItemSuccessfully() {
+        User currentUser = new User();
+        currentUser.setId(2L);
 
+        Long orderId = 1L;
+        Long itemId = 1L;
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setStatus(OrderStatus.OPEN);
+
+        Item item = new Item();
+        item.setId(itemId);
+        item.setName("Pizza");
+        item.setPrice(new BigDecimal("4.00"));
+        item.setQuantity(1);
+        item.setOrder(order);
+
+        // User for each participant
+        User user1 = new User();
+        user1.setName("Kevin");
+
+        User user2 = new User();
+        user2.setName("Ali");
+
+        Participant participant1 = new Participant();
+        participant1.setId(10L);
+        participant1.setOrder(order);
+        participant1.setUser(user1);
+
+        Participant participant2 = new Participant();
+        participant2.setId(11L);
+        participant2.setOrder(order);
+        participant2.setUser(user2);
+
+        AssignRequestDTO assignRequestDTO = new AssignRequestDTO();
+        List<Long> participantIds = new ArrayList<>();
+        participantIds.add(10L);
+        participantIds.add(11L);
+        assignRequestDTO.setParticipantIds(participantIds);
+
+        assignRequestDTO.setParticipantIds(participantIds);
+
+        when(accessService.getOrderByIdIfParticipant(orderId, currentUser))
+                .thenReturn(order);
+        when(itemRepository.findByIdAndOrder(itemId, order))
+                .thenReturn(Optional.of(item));
+        when(participantRepository.findByIdAndOrder(10L, order))
+                .thenReturn(Optional.of(participant1));
+        when(participantRepository.findByIdAndOrder(11L, order))
+                .thenReturn(Optional.of(participant2));
+
+        // Neither participant is already assigned
+        when(itemParticipantRepository.existsByItemAndParticipant(item, participant1))
+                .thenReturn(false);
+        when(itemParticipantRepository.existsByItemAndParticipant(item, participant2))
+                .thenReturn(false);
+
+        // Mock save to return the entity (common pattern even if result isn't used)
+        when(itemParticipantRepository.save(any(ItemParticipant.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        AssignResponseDTO result = orderService.assignItem(orderId, itemId, assignRequestDTO, currentUser);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(itemId,result.getItemId());
+        assertEquals("Pizza", result.getItemName());
+        assertEquals(new BigDecimal("4.00"), result.getTotalPrice());
+        assertEquals(2, result.getShares().size());
+
+        BigDecimal expectedShare = new BigDecimal("2.00");
+        result.getShares().forEach(share ->
+                assertEquals(expectedShare, share.getShare()));
+
+        verify(itemParticipantRepository, times(2)).save(any(ItemParticipant.class));
     }
 }
