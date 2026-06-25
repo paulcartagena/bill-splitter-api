@@ -29,7 +29,7 @@ spring:
       on-profile: prod
 
   datasource:
-    url: jdbc:postgresql://db.zrlizembiyemqozmxqaa.supabase.co:5432/postgres
+    url: jdbc:postgresql://db.zrlizembiyemqozmxqaa.supabase.co:5432/postgres?sslmode=require
     username: postgres
     password: ${SUP_PASSWORD}
 
