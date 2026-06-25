@@ -23,3 +23,23 @@ jwt:
   secret: ${JWT_SECRET}
 
 ---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: jdbc:postgresql://db.zrlizembiyemqozmxqaa.supabase.co:5432/postgres
+    username: postgres
+    password: ${SUP_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    open-in-view: false
+
+jwt:
+  secret: ${JWT_SECRET}
+
+---
