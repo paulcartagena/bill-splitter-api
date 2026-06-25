@@ -3,7 +3,7 @@ package com.billsplitter.service;
 import com.billsplitter.dto.auth.RegisterRequestDTO;
 import com.billsplitter.model.User;
 import com.billsplitter.repository.UserRepository;
-import exception.EmailAlreadyExistsException;
+import com.billsplitter.exception.EmailAlreadyExistsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

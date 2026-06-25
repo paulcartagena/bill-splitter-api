@@ -1,4 +1,4 @@
-package exception;
+package com.billsplitter.exception;
 
 public class ItemNotFoundException extends RuntimeException {
     public ItemNotFoundException(String message) {

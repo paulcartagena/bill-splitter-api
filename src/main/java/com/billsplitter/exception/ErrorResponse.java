@@ -1,4 +1,4 @@
-package exception;
+package com.billsplitter.exception;
 
 import lombok.Builder;
 import lombok.Getter;

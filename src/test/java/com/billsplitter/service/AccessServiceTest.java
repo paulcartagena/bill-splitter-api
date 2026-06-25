@@ -3,7 +3,7 @@ package com.billsplitter.service;
 import com.billsplitter.model.Order;
 import com.billsplitter.model.User;
 import com.billsplitter.repository.OrderRepository;
-import exception.OrderNotFoundException;
+import com.billsplitter.exception.OrderNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

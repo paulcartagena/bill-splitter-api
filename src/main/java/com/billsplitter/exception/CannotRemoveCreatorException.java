@@ -1,4 +1,4 @@
-package exception;
+package com.billsplitter.exception;
 
 public class CannotRemoveCreatorException extends RuntimeException {
     public CannotRemoveCreatorException(String message) {

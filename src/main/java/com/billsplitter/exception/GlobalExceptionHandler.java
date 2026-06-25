@@ -1,4 +1,4 @@
-package exception;
+package com.billsplitter.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
