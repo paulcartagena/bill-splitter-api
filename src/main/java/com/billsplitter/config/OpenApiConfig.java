@@ -17,10 +17,6 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()
-                .servers(List.of(
-                        new Server()
-                                .url("http://localhost:8080")
-                ))
                 .info(
                         new Info()
                                 .title("Bill Splitter API")
