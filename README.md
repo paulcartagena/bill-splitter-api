@@ -1,6 +1,10 @@
 # Bill Splitter API 
 REST API for splitting restaurant bills among friends. Built with Java 21, Spring Boot 4, Spring Security + JWT, and PostgreSQL.
 
+### Live Demo 
+API deployed on Railway.  
+Documentation: https://tu-app.railway.app/scalar
+
 ### Features 
 - JWT authentication with register and login
 - Create and manage orders with tax and tip configuration
@@ -22,7 +26,7 @@ REST API for splitting restaurant bills among friends. Built with Java 21, Sprin
 DB_NAME = your_database_name  
 DB_USERNAME = your_database_user 
 DB_PASSWORD = your_database_password 
-JWT_SECRET = yout_jwt_secret 
+JWT_SECRET = your_jwt_secret 
 ```
 Generate a JWT secret with 
 ```bash
