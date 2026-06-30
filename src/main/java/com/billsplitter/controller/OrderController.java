@@ -143,7 +143,7 @@ public class OrderController {
         orderService.removeItem(orderId, itemId, currentUser);
     }
 
-    @Operation(summary = "Assign an item to participants")
+    @Operation(summary = "Assign an item")
     @PostMapping("/{orderId}/items/{itemId}/assignItem")
     public AssignResponseDTO assignItem(@PathVariable Long orderId,
                                         @PathVariable Long itemId,
