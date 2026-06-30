@@ -6,6 +6,8 @@ import com.billsplitter.dto.auth.TokenResponseDTO;
 import com.billsplitter.model.User;
 import com.billsplitter.service.AuthService;
 import com.billsplitter.service.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController()
+@Tag(name = "Authentication")
 @RequestMapping("/auth")
 public class AuthController {
 
@@ -31,6 +34,9 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
+    @Operation(
+            summary = "Register"
+    )
     @PostMapping("/register")
     public TokenResponseDTO register(@Valid @RequestBody RegisterRequestDTO registerRequestDTO) {
         User user = authService.registerUser(registerRequestDTO);
@@ -39,6 +45,9 @@ public class AuthController {
         return new TokenResponseDTO(token);
     }
 
+    @Operation(
+            summary = "Login"
+    )
     @PostMapping("/login")
     public TokenResponseDTO login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
         var auth = authenticationManager.authenticate(
